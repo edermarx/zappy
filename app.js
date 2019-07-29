@@ -1,9 +1,21 @@
+// ==================== EXTERNAL IMPORTS ==================== //
+
 const express = require('express');
 const path = require('path');
+const dotenv = require('dotenv');
+
+// ==================== INTERNAL IMPORTS ==================== //
+
+
+
+// ==================== GLOBAL VARIABLES ==================== //
 
 const app = express();
 
+// ==================== MIDDLEWARE ==================== //
+
 app.use('/views', express.static('views'));
+dotenv.config();
 
 // ==================== FUNCTIONS ==================== //
 

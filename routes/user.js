@@ -1,9 +1,16 @@
 const express = require('express');
 
-const app = express();
+const db = require('../providers/firebase');
 
-app.get('/', (req, res) => {
-  res.send('usuario');
+const app = express();
+const User = db.ref(`${process.env.FIREBASE_ACCESS_TOKEN}/users`);
+
+// ==================== REGISTER ==================== // 
+
+app.post('/register', (req, res) => {
+  
 });
+
+// ==================== LOGIN ==================== // 
 
 module.exports = app;
