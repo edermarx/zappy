@@ -11,6 +11,11 @@ const getViewPath = (view) => {
   return path.join(__dirname, `./views/${view}/${view}.html`);
 }
 
+// ==================== ROUTES ==================== //
+
+app.use('/api/user', require('./routes/user'));
+app.use('/api/message', require('./routes/message'));
+
 // ==================== VIEWS ==================== //
 
 app.get('/', (req, res) => {
@@ -22,8 +27,6 @@ app.get('/:view', (req, res) => {
     if (err) res.send('404');
   });
 });
-
-// =============================================== //
 
 app.listen(3000, () => {
   console.log('READY');
