@@ -8,7 +8,7 @@ const session = require('express-session');
 
 // ==================== INTERNAL IMPORTS ==================== //
 
-
+const handleError = require('./providers/handle-error');
 
 // ==================== GLOBAL VARIABLES ==================== //
 
@@ -41,23 +41,41 @@ const getViewPath = (view) => {
   return path.join(__dirname, `./views/${view}/${view}.html`);
 }
 
-// ==================== ROUTES ==================== //
+// ==================== USER ROUTE ==================== //
 
 app.use('/api/user', require('./routes/user'));
-app.use('/api/message', require('./routes/message'));
 
 // ==================== VIEWS ==================== //
-
-app.get('/', (req, res) => {
-  console.log(req.session.userID);
-  res.sendFile(getViewPath('home'));
-});
 
 app.get('/:view', (req, res) => {
   res.sendFile(getViewPath(req.params.view), (err) => {
     if (err) res.send('404');
   });
 });
+
+// ==================== ACCESS CONTROL ==================== //
+
+app.use((req, res, next) => {
+  if(!req.session.userID){
+    if(req.url.indexOf('api') !== -1){
+      handleError(res, null, 'unauthenticated');
+      return;
+    }
+    res.redirect('/login');
+    return;
+  }
+  next();
+});
+
+// ==================== AUTH REQUIRED ==================== //
+
+app.get('/', (req, res) => {
+  res.sendFile(getViewPath('home'));
+});
+
+app.use('/api/message', require('./routes/message'));
+
+// ==================== RUN SERVER ==================== //
 
 app.listen(3000, () => {
   console.log('READY');

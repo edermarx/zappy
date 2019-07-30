@@ -7,7 +7,10 @@ gel('#login-form').addEventListener('submit', async (e) => {
       username: gel('input[name=username]').value,
       password: gel('input[name=password]').value,
     });
-    console.log(response.data);
+
+    if(response.data === 'ok'){
+      window.location.replace('/');
+    }
   } catch (err) {
     console.log(err.response.data);
   }
