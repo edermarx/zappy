@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 
 // ==================== INTERNAL IMPORTS ==================== //
 
@@ -25,6 +26,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
+const sess = {
+  secret: process.env.SESSION_TOKEN,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {}
+};
+
+app.use(session(sess));
+
 // ==================== FUNCTIONS ==================== //
 
 const getViewPath = (view) => {
@@ -39,6 +49,7 @@ app.use('/api/message', require('./routes/message'));
 // ==================== VIEWS ==================== //
 
 app.get('/', (req, res) => {
+  console.log(req.session.userID);
   res.sendFile(getViewPath('home'));
 });
 
