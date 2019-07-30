@@ -122,6 +122,10 @@ app.get('/contact', async (req, res) => {
     contactsFirebase.forEach((contact) => {
       contacts.push(contact.val());
     });
+    if(req.query.tamanho){
+      res.send(''+contacts.length);
+      return;
+    }
     res.send(contacts);
   } catch (err) {
     handleError(res, err, null);
