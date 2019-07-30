@@ -54,4 +54,35 @@ app.post('/register', async (req, res) => {
 
 // ==================== LOGIN ==================== // 
 
+app.post('/login', async (req, res) => {
+  // check if there's missing data
+  if (!req.body.username || !req.body.password) {
+    handleError(res, null, 'missing-data');
+    return;
+  }
+
+  // check if user exists
+  const user = (await User
+    .orderByChild('username')
+    .equalTo(req.body.username)
+    .once('value')).val();
+
+  if (!user) {
+    handleError(res, null, 'user-not-found');
+    return;
+  }
+
+  const [userID, userData] = Object.entries(user)[0];
+
+  const match = await bcrypt.compare(req.body.password, userData.password);
+
+  if (match) {
+    res.send('ok');
+    return;
+  }
+  handleError(res, null, 'wrong-password');
+});
+
+// ==================== LOGIN ==================== // 
+
 module.exports = app;

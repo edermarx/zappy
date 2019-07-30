@@ -16,6 +16,7 @@ const app = express();
 // ==================== MIDDLEWARE ==================== //
 
 app.use('/views', express.static('views'));
+
 dotenv.config();
 
 // parse application/x-www-form-urlencoded
