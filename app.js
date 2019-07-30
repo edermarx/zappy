@@ -3,6 +3,7 @@
 const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
 
 // ==================== INTERNAL IMPORTS ==================== //
 
@@ -16,6 +17,12 @@ const app = express();
 
 app.use('/views', express.static('views'));
 dotenv.config();
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
 
 // ==================== FUNCTIONS ==================== //
 

@@ -9,6 +9,7 @@
   "author": "Eder Marques <edermarques96@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "firebase": "^6.3.3"
