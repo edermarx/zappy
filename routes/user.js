@@ -77,9 +77,9 @@ app.post('/login', async (req, res) => {
 
     const match = await bcrypt.compare(req.body.password, userData.password);
 
-    if (match) {
+    if (match) { // senha tá correta
       req.session.userID = userID;
-      res.send('ok');
+      res.send(userID);
       return;
     }
     handleError(res, null, 'wrong-password');
@@ -90,6 +90,7 @@ app.post('/login', async (req, res) => {
 
 // ==================== CONTACT ==================== // 
 
+// add contact
 app.post('/contact/:contact', async (req, res) => {
   try {
     const user = (await User
@@ -122,10 +123,12 @@ app.get('/contact', async (req, res) => {
     contactsFirebase.forEach((contact) => {
       contacts.push(contact.val());
     });
+
     if(req.query.tamanho){
       res.send(''+contacts.length);
       return;
     }
+
     res.send(contacts);
   } catch (err) {
     handleError(res, err, null);

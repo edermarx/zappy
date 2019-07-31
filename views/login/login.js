@@ -8,7 +8,10 @@ gel('#login-form').addEventListener('submit', async (e) => {
       password: gel('input[name=password]').value,
     });
 
-    if(response.data === 'ok'){
+    console.log(response);
+
+    if(response.status === 200){
+      window.localStorage.setItem('userID', response.data);
       window.location.replace('/');
     }
   } catch (err) {

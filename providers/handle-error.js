@@ -1,3 +1,3 @@
 module.exports = (res, err, type) => {
-  res.send(type);
+  res.status(400).send(type);
 };
