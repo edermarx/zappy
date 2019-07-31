@@ -17,6 +17,16 @@ gel('#send-message-form').addEventListener('submit', async (e) => {
   });
 });
 
+const getHour = (hour) => {
+  const adjustHour = (num) => {
+    if (num < 10) return `0${num}`;
+    return num;
+  };
+
+  const date = new Date(hour);
+  return `${adjustHour(date.getHours())}:${adjustHour(date.getMinutes())}`;
+};
+
 const renderMessages = async (contactID) => {
   const users = [contactID, window.localStorage.getItem('userID')];
   users.sort();
@@ -26,11 +36,11 @@ const renderMessages = async (contactID) => {
   window.localStorage.setItem('chatID', chatID);
 
   const messages = await axios.get(`/api/message/${chatID}`);
-  
+
   gel('#messages').innerHTML = '';
   messages.data.forEach((message) => {
     gel('#messages').innerHTML += `
-      <p>${message.sender}: ${message.content} <${message.timestamp}></p>
+      <p>${message.content} - ${getHour(message.timestamp)}</p>
     `;
   });
 }
@@ -38,7 +48,7 @@ const renderMessages = async (contactID) => {
 
 setInterval(async () => {
   const response = await axios.get('/api/user/contact?tamanho=1');
-  if(+response.data !== gel('#contacts').children.length){
+  if (+response.data !== gel('#contacts').children.length) {
     console.log(+response.data, gel('#contacts').children.length);
     const contacts = await axios.get('/api/user/contact');
     gel('#contacts').innerHTML = '';
@@ -47,5 +57,5 @@ setInterval(async () => {
         <p onclick="renderMessages('${contact.id}')">${contact.alias}</p>
       `;
     });
-  } 
+  }
 }, 1000);
