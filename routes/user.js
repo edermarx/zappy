@@ -156,4 +156,24 @@ app.get('/has-message', async (req, res) => {
   }
 });
 
+app.delete('/has-message/:chatID', async (req, res) => {
+  try {
+    const user = (await User
+      .child(req.session.userID)
+      .child('hasMessage')
+      .orderByChild('chatID')
+      .equalTo(req.params.chatID)
+      .once('value')).val();
+
+    const key = Object.entries(user)[0][0];
+
+    await User.child(req.session.userID).child('hasMessage').child(key).remove();
+
+    res.send('ok');
+  } catch (err) {
+    console.log(err);
+    handleError(res, err, null);
+  }
+});
+
 module.exports = app;
