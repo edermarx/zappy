@@ -43,8 +43,32 @@ app.post('/:chatID', async (req, res) => {
   }
 
   const participants = chatIdRaw.split('(*-*)');
-  participants.forEach((participant) => {
-    User.child(participant).child('hasMessage').push(req.params.chatID);
+  participants.splice(participants.indexOf(req.session.userID), 1);
+  participants.forEach(async (participant) => {
+    const hasMessageFirebase = await User.child(participant).child('hasMessage').once('value');
+
+    let hasMessageFlag = 0;
+    hasMessageFirebase.forEach((chatIdObject) => {
+      if (chatIdObject.val().chatID === req.params.chatID) hasMessageFlag = 1;
+    });
+    if (hasMessageFlag) {
+      const user = await User
+        .child(participant)
+        .child('hasMessage')
+        .orderByChild('chatID')
+        .equalTo(req.params.chatID)
+        .once('value');
+
+      const [key, { count }] = Object.entries(user.val())[0];
+
+      User.child(participant).child('hasMessage').child(key).update({ count: count + 1 });
+      return;
+    }
+
+    User.child(participant).child('hasMessage').push({
+      chatID: req.params.chatID,
+      count: 1,
+    });
   });
 
   await Message.child(req.params.chatID).push({
