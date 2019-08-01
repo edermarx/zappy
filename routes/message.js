@@ -6,6 +6,7 @@ const db = require('../providers/firebase');
 const handleError = require('../providers/handle-error');
 
 const Message = db.ref(`${process.env.FIREBASE_ACCESS_TOKEN}/messages`);
+const User = db.ref(`${process.env.FIREBASE_ACCESS_TOKEN}/users`);
 
 const app = express();
 
@@ -34,6 +35,17 @@ app.post('/:chatID', async (req, res) => {
     handleError(res, null, 'empty-message');
     return;
   }
+
+  const chatIdRaw = atob(req.params.chatID);
+  if (chatIdRaw.indexOf(req.session.userID) === -1) {
+    handleError(res, null, 'not-allowed');
+    return;
+  }
+
+  const participants = chatIdRaw.split('(*-*)');
+  participants.forEach((participant) => {
+    User.child(participant).child('hasMessage').push(req.params.chatID);
+  });
 
   await Message.child(req.params.chatID).push({
     sender: req.session.userID,

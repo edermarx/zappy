@@ -56,15 +56,21 @@ const renderMessages = async (contactID) => {
 
 
 setInterval(async () => {
-  const response = await axios.get('/api/user/contact?tamanho=1');
-  if (+response.data !== gel('#contacts').children.length) {
-    console.log(+response.data, gel('#contacts').children.length);
-    const contacts = await axios.get('/api/user/contact');
-    gel('#contacts').innerHTML = '';
-    contacts.data.forEach((contact) => {
-      gel('#contacts').innerHTML += `
+  try {
+    const response = await axios.get('/api/user/contact?tamanho=1');
+    if (+response.data !== gel('#contacts').children.length) {
+      console.log(+response.data, gel('#contacts').children.length);
+      const contacts = await axios.get('/api/user/contact');
+      gel('#contacts').innerHTML = '';
+      contacts.data.forEach((contact) => {
+        gel('#contacts').innerHTML += `
         <p onclick="renderMessages('${contact.id}')">${contact.alias}</p>
       `;
-    });
+      });
+    }
+  } catch (err) {
+    if (err.response.data === 'unauthenticated') {
+      window.location.replace('/login');
+    }
   }
 }, 1000);

@@ -118,6 +118,11 @@ app.post('/contact/:contact', async (req, res) => {
 
 app.get('/contact', async (req, res) => {
   try {
+    if (!req.session.userID) {
+      handleError(res, null, 'unauthenticated');
+      return;
+    }
+
     const contactsFirebase = await User.child(req.session.userID).child('contacts').once('value');
     const contacts = [];
     contactsFirebase.forEach((contact) => {
