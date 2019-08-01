@@ -11,10 +11,14 @@ gel('#add-contact-form').addEventListener('submit', async (e) => {
 });
 
 gel('#send-message-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  await axios.post(`/api/message/${window.localStorage.getItem('chatID')}`, {
-    content: gel('input[name=message]').value,
-  });
+  try {
+    e.preventDefault();
+    await axios.post(`/api/message/${window.localStorage.getItem('chatID')}`, {
+      content: gel('input[name=message]').value,
+    });
+  } catch (err) {
+    console.log(err.response);
+  }
 });
 
 const getHour = (hour) => {
@@ -28,21 +32,26 @@ const getHour = (hour) => {
 };
 
 const renderMessages = async (contactID) => {
-  const users = [contactID, window.localStorage.getItem('userID')];
-  users.sort();
-  const chatIdRaw = users.join('(*-*)');
-  const chatID = btoa(chatIdRaw);
+  try {
+    const users = [contactID, window.localStorage.getItem('userID')];
+    users.sort();
+    const chatIdRaw = users.join('(*-*)');
+    const chatID = btoa(chatIdRaw);
 
-  window.localStorage.setItem('chatID', chatID);
+    window.localStorage.setItem('chatID', chatID);
 
-  const messages = await axios.get(`/api/message/${chatID}`);
+    const response = await axios.get(`/api/message/${chatID}`);
 
-  gel('#messages').innerHTML = '';
-  messages.data.forEach((message) => {
-    gel('#messages').innerHTML += `
+    gel('#messages').innerHTML = '';
+
+    response.data.forEach((message) => {
+      gel('#messages').innerHTML += `
       <p>${message.content} - ${getHour(message.timestamp)}</p>
     `;
-  });
+    });
+  } catch (err) {
+    console.log(err.response);
+  }
 }
 
 

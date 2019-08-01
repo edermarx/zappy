@@ -1,6 +1,7 @@
 const express = require('express');
-const db = require('../providers/firebase');
 const atob = require('atob');
+
+const db = require('../providers/firebase');
 
 const handleError = require('../providers/handle-error');
 
@@ -14,7 +15,7 @@ app.get('/:chatID', async (req, res) => {
   const decryptedChatID = atob(req.params.chatID);
   const allowedUsers = decryptedChatID.split('(*-*)');
 
-  if(allowedUsers.indexOf(req.session.userID) === -1){
+  if (allowedUsers.indexOf(req.session.userID) === -1) {
     handleError(res, null, 'not-allowed');
     return;
   }
@@ -29,6 +30,11 @@ app.get('/:chatID', async (req, res) => {
 
 // add message to this chat
 app.post('/:chatID', async (req, res) => {
+  if (!req.body.content) {
+    handleError(res, null, 'empty-message');
+    return;
+  }
+
   await Message.child(req.params.chatID).push({
     sender: req.session.userID,
     content: req.body.content,

@@ -7,7 +7,7 @@ const handleError = require('../providers/handle-error');
 const app = express();
 const User = db.ref(`${process.env.FIREBASE_ACCESS_TOKEN}/users`);
 
-// ==================== REGISTER ==================== // 
+// ==================== REGISTER ==================== //
 
 app.post('/register', async (req, res) => {
   try {
@@ -52,7 +52,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// ==================== LOGIN ==================== // 
+// ==================== LOGIN ==================== //
 
 app.post('/login', async (req, res) => {
   try {
@@ -88,7 +88,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// ==================== CONTACT ==================== // 
+// ==================== CONTACT ==================== //
 
 // add contact
 app.post('/contact/:contact', async (req, res) => {
@@ -112,7 +112,7 @@ app.post('/contact/:contact', async (req, res) => {
 
     res.send('ok');
   } catch (err) {
-    handleError(res, err, null)
+    handleError(res, err, null);
   }
 });
 
@@ -124,12 +124,28 @@ app.get('/contact', async (req, res) => {
       contacts.push(contact.val());
     });
 
-    if(req.query.tamanho){
-      res.send(''+contacts.length);
+    if (req.query.tamanho) {
+      res.send(`${contacts.length}`);
       return;
     }
 
     res.send(contacts);
+  } catch (err) {
+    handleError(res, err, null);
+  }
+});
+
+// ==================== HAS-MESSAGE ==================== //
+
+
+app.get('/has-message', async (req, res) => {
+  try {
+    const hasMessageFirebase = await User.child(req.session.userID).child('hasMessage').once('value');
+    const hasMessage = [];
+    hasMessageFirebase.forEach((chatID) => {
+      hasMessage.push(chatID);
+    });
+    res.send(hasMessage);
   } catch (err) {
     handleError(res, err, null);
   }
