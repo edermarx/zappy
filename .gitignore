@@ -1,3 +1,4 @@
 **/node_modules/**
 .env
 /providers/firebase.js
+uploads/

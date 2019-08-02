@@ -13,6 +13,9 @@ gel('#login-form').addEventListener('submit', async (e) => {
       window.location.replace('/');
     }
   } catch (err) {
-    console.log(err.response.data);
+    const errorMessages = {
+      'wrong-password': 'Senha Incorreta'
+    };
+    alert(errorMessages[err.response.data]);
   }
 });

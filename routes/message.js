@@ -24,7 +24,10 @@ app.get('/:chatID', async (req, res) => {
   const messagesFirebase = await Message.child(req.params.chatID).once('value');
   const messages = [];
   messagesFirebase.forEach((message) => {
-    messages.push(message.val());
+    messages.push({
+      key: message.key,
+      data: message.val(),
+    });
   });
   res.send(messages);
 });
@@ -76,6 +79,11 @@ app.post('/:chatID', async (req, res) => {
     content: req.body.content,
     timestamp: new Date().getTime(),
   });
+  res.send('ok');
+});
+
+app.delete('/:chatID/:messageID', async (req, res) => {
+  await Message.child(req.params.chatID).child(req.params.messageID).remove();
   res.send('ok');
 });
 

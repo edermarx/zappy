@@ -17,6 +17,7 @@ const app = express();
 // ==================== MIDDLEWARE ==================== //
 
 app.use('/views', express.static('views'));
+app.use('/uploads', express.static('uploads'));
 
 dotenv.config();
 

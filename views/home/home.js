@@ -15,6 +15,7 @@ const getHour = (hour) => {
 const renderMessages = async (contactID, chatID) => {
   try {
     let myChatID = chatID;
+    console.log(chatID);
 
     if (!chatID) {
       const users = [contactID, window.localStorage.getItem('userID')];
@@ -29,9 +30,9 @@ const renderMessages = async (contactID, chatID) => {
 
     gel('#messages').innerHTML = '';
 
-    response.data.forEach((message) => {
+    response.data.reverse().forEach((messageObject) => {
       gel('#messages').innerHTML += `
-      <p>${message.content} - ${getHour(message.timestamp)}</p>
+      <p ondblclick="deleteMessage('${messageObject.key}')">${messageObject.data.content} - ${getHour(messageObject.data.timestamp)}</p>
       `;
     });
   } catch (err) {
@@ -40,8 +41,18 @@ const renderMessages = async (contactID, chatID) => {
 };
 
 const showProfile = async () => {
-  const response = await axios.get('/api/user/profile');
-  gel('#alias').innerHTML = `Bem vindo ${response.data.alias}!`;
+  setTimeout(async () => {
+    gel('#profile-image').innerHTML += `
+    <img src="/uploads/image-profiles/${window.localStorage.getItem('userID')}.png" width="50px" height="50px">
+  `;
+    const response = await axios.get('/api/user/profile');
+    gel('#alias').innerHTML = `Bem vindo ${response.data.alias}!`;
+  }, 1000);
+};
+
+const deleteMessage = async (messageID) => {
+  await axios.delete(`/api/message/${window.localStorage.getItem('chatID')}/${messageID}`);
+  renderMessages(null, window.localStorage.getItem('chatID'));
 };
 
 // ==================== EVENTS ==================== //
@@ -63,6 +74,7 @@ gel('#send-message-form').addEventListener('submit', async (e) => {
       content: gel('input[name=message]').value,
     });
     if (response.data === 'ok') renderMessages(null, chatID);
+    gel('input[name=message]').value = '';
   } catch (err) {
     console.log(err.response);
   }
@@ -78,10 +90,10 @@ gel('#edit-alias-form').addEventListener('submit', async (e) => {
 
 gel('[name="profile-image"]').addEventListener('change', async (e) => {
   const data = new FormData();
-  console.log(e.currentTarget.files[0]);
   data.append('profile-image', e.currentTarget.files[0], `${window.localStorage.getItem('userID')}.png`);
   const response = await axios.post('/api/user/profile/image', data, { 'content-type': 'multipart/form-data' });
-  console.log(response);
+  console.log(response.data);
+  if (response.data === 'ok') showProfile();
 });
 
 // ==================== LISTENERS ==================== //
@@ -95,6 +107,7 @@ setInterval(async () => {
       contacts.data.forEach((contact) => {
         gel('#contacts').innerHTML += `
         <p onclick="renderMessages('${contact.id}')">${contact.alias}</p>
+        <img src="/uploads/image-profiles/${contact.id}.png" width="50px" height="50px">
         `;
       });
     }
