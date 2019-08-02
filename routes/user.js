@@ -1,11 +1,24 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const multer = require('multer');
+const path = require('path');
 
 const db = require('../providers/firebase');
 const handleError = require('../providers/handle-error');
 
 const app = express();
 const User = db.ref(`${process.env.FIREBASE_ACCESS_TOKEN}/users`);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../uploads/image-profiles'));
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 // ==================== REGISTER ==================== //
 
@@ -174,6 +187,30 @@ app.delete('/has-message/:chatID', async (req, res) => {
     console.log(err);
     handleError(res, err, null);
   }
+});
+
+// ==================== PROFILE ==================== //
+
+app.get('/profile', async (req, res) => {
+  try {
+    const user = (await User.child(req.session.userID).once('value')).val();
+    res.send(user);
+  } catch (err) {
+    handleError(res, err, null);
+  }
+});
+
+app.patch('/profile', async (req, res) => {
+  try {
+    await User.child(req.session.userID).update({ alias: req.body.alias });
+    res.send('ok');
+  } catch (err) {
+    handleError(res, err, null);
+  }
+});
+
+app.post('/profile/image', upload.single('profile-image'), (req, res) => {
+  res.send('ok');
 });
 
 module.exports = app;

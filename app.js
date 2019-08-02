@@ -30,16 +30,14 @@ const sess = {
   secret: process.env.SESSION_TOKEN,
   resave: false,
   saveUninitialized: true,
-  cookie: {}
+  cookie: {},
 };
 
 app.use(session(sess));
 
 // ==================== FUNCTIONS ==================== //
 
-const getViewPath = (view) => {
-  return path.join(__dirname, `./views/${view}/${view}.html`);
-}
+const getViewPath = view => path.join(__dirname, `./views/${view}/${view}.html`);
 
 // ==================== USER ROUTE ==================== //
 
@@ -56,8 +54,8 @@ app.get('/:view', (req, res) => {
 // ==================== ACCESS CONTROL ==================== //
 
 app.use((req, res, next) => {
-  if(!req.session.userID){
-    if(req.url.indexOf('api') !== -1){
+  if (!req.session.userID) {
+    if (req.url.indexOf('api') !== -1) {
       handleError(res, null, 'unauthenticated');
       return;
     }

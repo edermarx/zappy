@@ -1,3 +1,5 @@
+// ==================== FUNCTIONS ==================== //
+
 const gel = element => document.querySelector(element);
 
 const getHour = (hour) => {
@@ -11,7 +13,6 @@ const getHour = (hour) => {
 };
 
 const renderMessages = async (contactID, chatID) => {
-  console.log('contactID, chatID');
   try {
     let myChatID = chatID;
 
@@ -31,18 +32,24 @@ const renderMessages = async (contactID, chatID) => {
     response.data.forEach((message) => {
       gel('#messages').innerHTML += `
       <p>${message.content} - ${getHour(message.timestamp)}</p>
-    `;
+      `;
     });
   } catch (err) {
     console.log(err.response);
   }
 };
 
-gel('#add-contact-form').addEventListener('submit', async (e) => {
+const showProfile = async () => {
+  const response = await axios.get('/api/user/profile');
+  gel('#alias').innerHTML = `Bem vindo ${response.data.alias}!`;
+};
+
+// ==================== EVENTS ==================== //
+
+gel('#add-contact-form').addEventListener('submit', (e) => {
   e.preventDefault();
   try {
-    const response = await axios.post(`/api/user/contact/${gel('input[name=contact]').value}`);
-    console.log(response);
+    axios.post(`/api/user/contact/${gel('input[name=contact]').value}`);
   } catch (err) {
     console.log(err.response.data);
   }
@@ -61,17 +68,34 @@ gel('#send-message-form').addEventListener('submit', async (e) => {
   }
 });
 
+gel('#edit-alias-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const response = await axios.patch('/api/user/profile', {
+    alias: gel('input[name=alias]').value,
+  });
+  if (response.data === 'ok') showProfile();
+});
+
+gel('[name="profile-image"]').addEventListener('change', async (e) => {
+  const data = new FormData();
+  console.log(e.currentTarget.files[0]);
+  data.append('profile-image', e.currentTarget.files[0], `${window.localStorage.getItem('userID')}.png`);
+  const response = await axios.post('/api/user/profile/image', data, { 'content-type': 'multipart/form-data' });
+  console.log(response);
+});
+
+// ==================== LISTENERS ==================== //
+
 setInterval(async () => {
   try {
     const response = await axios.get('/api/user/contact?tamanho=1');
     if (+response.data !== gel('#contacts').children.length) {
-      console.log(+response.data, gel('#contacts').children.length);
       const contacts = await axios.get('/api/user/contact');
       gel('#contacts').innerHTML = '';
       contacts.data.forEach((contact) => {
         gel('#contacts').innerHTML += `
         <p onclick="renderMessages('${contact.id}')">${contact.alias}</p>
-      `;
+        `;
       });
     }
   } catch (err) {
@@ -86,7 +110,6 @@ setInterval(async () => {
     const chatID = window.localStorage.getItem('chatID');
     const newMessages = (await axios.get('/api/user/has-message')).data;
     if (newMessages.map(chatIdObject => chatIdObject.chatID).indexOf(chatID) !== -1) {
-      console.log('delete');
       await axios.delete(`/api/user/has-message/${chatID}`, { chatID: 3 });
       renderMessages(null, chatID);
     }
@@ -94,3 +117,7 @@ setInterval(async () => {
     console.log(err.response.data);
   }
 }, 1500);
+
+// ===================== CALLS ==================== //
+
+showProfile();

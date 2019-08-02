@@ -5,16 +5,16 @@
         "es6": true,
         "node": true
     },
-    "extends": [
-        "airbnb-base"
-    ],
+    "extends": "airbnb-base",
     "globals": {
         "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly"
+        "SharedArrayBuffer": "readonly",
+        "axios": false
     },
     "parserOptions": {
         "ecmaVersion": 2018
     },
     "rules": {
+      "no-console": ["error", { "allow": ["warn", "error", "log"] }]
     }
 }
